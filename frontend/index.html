@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Salvar Texto</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Salvar Texto no SQLite via Flask</h1>
+        <textarea id="inputText" rows="5" placeholder="Digite algo aqui..."></textarea>
+        <button onclick="saveText()">Salvar</button>
+        <h2>Textos Salvos</h2>
+        <ul id="entriesList"></ul>
+    </div>
+
+<script>
+async function saveText() {
+    const text = document.getElementById('inputText').value.trim();
+    if (!text) return alert('Digite algo!');
+
+    const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text})
+    });
+
+    if (res.ok) {
+        document.getElementById('inputText').value = '';
+        loadEntries();
+    } else {
+        alert('Erro ao salvar');
+    }
+}
+
+async function loadEntries() {
+    const res = await fetch('/api/entries');
+    if (!res.ok) return;
+
+    const entries = await res.json();
+    const list = document.getElementById('entriesList');
+    list.innerHTML = '';
+    entries.forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = e.text;
+        list.appendChild(li);
+    });
+}
+
+loadEntries();
+</script>
+
+</body>
+</html>
